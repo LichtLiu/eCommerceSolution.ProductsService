@@ -30,8 +30,8 @@ public static class ProductAPIEndpoints
             return product == null ? Results.NotFound() : Results.Ok(product);
         });
 
-        // GET /api/products/products/search/{searchString}(路徑照作業文字)
-        productsGroup.MapGet("/products/search/{searchString}", async (IProductsService productsService, string searchString) =>
+        // GET /api/products/search/{searchString}
+        productsGroup.MapGet("/search/{searchString}", async (IProductsService productsService, string searchString) =>
         {
             List<ProductResponse?> products = await productsService.GetProductsByCondition(searchString);
             return Results.Ok(products);

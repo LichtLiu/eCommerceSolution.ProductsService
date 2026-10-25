@@ -56,7 +56,7 @@ Dependency direction: `APILayer → BusinessLogicLayer → DataAccessLayer`.
 |---|---|---|---|---|
 | GET | `/api/products` | Get all products | 200 | |
 | GET | `/api/products/search/product-id/{productID}` | Get a product by ID | 200 | 404 |
-| GET | `/api/products/products/search/{searchString}` | "Contains" search on product name or category | 200 | |
+| GET | `/api/products/search/{searchString}` | "Contains" search on product name or category | 200 | |
 | POST | `/api/products` | Add a product | 201 | 400 |
 | PUT | `/api/products` | Update a product (body includes `productID`) | 200 | 400, 404 |
 | DELETE | `/api/products/{productID}` | Delete a product | 200 | 404 |
@@ -99,6 +99,7 @@ Requests from the Angular frontend `http://localhost:4200` are allowed (configur
 - The MySQL provider is the official `MySql.EntityFrameworkCore` package, because the community
   `Pomelo.EntityFrameworkCore.MySql` provider has no stable release for EF Core 10 yet.
   The provider method is therefore `UseMySQL` (all-caps "SQL").
-- The route `/api/products/products/search/{searchString}` follows the assignment text literally.
+- The search route is `/api/products/search/{searchString}`, which matches what the Angular client calls.
+  (The assignment text lists `/api/products/products/search/{searchString}`, which looks like a typo.)
 - The connection string in `appsettings.json` is for local development only. Use your own credentials
   (e.g. `dotnet user-secrets`) anywhere else.
