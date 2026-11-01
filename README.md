@@ -23,18 +23,22 @@ Dependency direction: `APILayer → BusinessLogicLayer → DataAccessLayer`.
 
    ```bash
    docker run -d --name products-mysql \
-     -e MYSQL_ROOT_PASSWORD=mysql123 \
+     -e MYSQL_ROOT_PASSWORD=<your-password> \
      -e MYSQL_DATABASE=ecommerce_products \
      -p 3306:3306 mysql:8
    ```
 
-2. **Check the connection string** in `APILayer/appsettings.json` and adjust it to your MySQL:
+2. **Provide the connection string.** It is not stored in `appsettings.json` (it contains a password, and
+   `appsettings.json` is copied into the Docker image). For local development use
+   [user-secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets):
 
-   ```json
-   "ConnectionStrings": {
-     "DefaultConnection": "Server=localhost;Port=3306;Database=ecommerce_products;User=root;Password=mysql123"
-   }
+   ```bash
+   dotnet user-secrets set "ConnectionStrings:DefaultConnection" \
+     "Server=localhost;Port=3306;Database=ecommerce_products;User=root;Password=<your-password>" \
+     --project APILayer
    ```
+
+   If it is missing, the API fails at startup with a clear error message.
 
 3. **Create the database schema** (applies the `InitialCreate` migration):
 
@@ -101,5 +105,18 @@ Requests from the Angular frontend `http://localhost:4200` are allowed (configur
   The provider method is therefore `UseMySQL` (all-caps "SQL").
 - The search route is `/api/products/search/{searchString}`, which matches what the Angular client calls.
   (The assignment text lists `/api/products/products/search/{searchString}`, which looks like a typo.)
-- The connection string in `appsettings.json` is for local development only. Use your own credentials
-  (e.g. `dotnet user-secrets`) anywhere else.
+- The connection string is intentionally **not** in `appsettings.json`: use `dotnet user-secrets` locally, or the
+  environment variable `ConnectionStrings__DefaultConnection` in a container (`docker run -e` / `--env-file`),
+  so no password is baked into the Docker image.
+
+## Run with Docker
+
+```bash
+docker build -t products-api:v1 .
+
+# keep the connection string in a file outside the repo (e.g. ~/products-api.env):
+#   ConnectionStrings__DefaultConnection=Server=host.docker.internal;Port=3306;Database=ecommerce_products;User=root;Password=<your-password>
+docker run -d --name products-api -p 8080:8080 --env-file ~/products-api.env products-api:v1
+```
+
+Swagger: `http://localhost:8080/swagger`. `host.docker.internal` points to the host machine on Docker Desktop.
